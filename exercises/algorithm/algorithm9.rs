@@ -2,8 +2,6 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
-
 use std::cmp::Ord;
 use std::default::Default;
 
@@ -15,6 +13,8 @@ where
     items: Vec<T>,
     comparator: fn(&T, &T) -> bool,
 }
+
+use std::mem::swap;
 
 impl<T> Heap<T>
 where
@@ -37,7 +37,17 @@ where
     }
 
     pub fn add(&mut self, value: T) {
-        //TODO
+        self.count+=1;
+        let mut id = self.count;
+        self.items.push(value);
+        while id > 1 {
+            if (self.comparator)(&self.items[id],&self.items[id/2]) {
+                self.items.swap(id,id/2);
+                id = id/2;
+            } else {
+                break;
+            }
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -57,8 +67,11 @@ where
     }
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
-		0
+        if idx*2+1 <= self.count && (self.comparator)(&self.items[idx*2+1], &self.items[idx*2]) {
+            idx*2+1
+        } else {
+            idx*2
+        }
     }
 }
 
@@ -84,8 +97,28 @@ where
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        if self.count == 0 {
+            return None;
+        }
+        let res = Some(self.items.remove(1));
+        self.count-=1;
+        if self.count == 0 {
+            return res;
+        } else {
+            let qwq = self.items.pop().unwrap();
+            self.items.insert(1,qwq);
+            let mut id = 1;
+            while self.children_present(id) {
+                let qwq = self.smallest_child_idx(id);
+                if (self.comparator)(&self.items[qwq], &self.items[id]) {
+                    self.items.swap(qwq,id);
+                    id = qwq;
+                } else {
+                    break;
+                }
+            }
+            res
+        }
     }
 }
 
